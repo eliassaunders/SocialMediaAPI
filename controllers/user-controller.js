@@ -2,10 +2,15 @@ const User = require('../models/User')
 
 const userController = {
     findUsers(req, res) {
-        User.find({}).then(users => {
+        User.find()
+        .populate({
+            path: 'thoughts',
+            select: '-__v'
+        })
+        .then(users => {
             res.json(users);
         })
-            .catch(err => res.json(err))
+        .catch(err =>  console.log(err))
     },
 
     findOneUser({ params }, res) {
@@ -24,7 +29,7 @@ const userController = {
     },
 
     updateUser({ params, body }, res) {
-        User.findOneAndUpdate({ _id: params.id }, body, { new: true })
+        User.findOneAndUpdate({ _id: params.id }, {$set: body}, { new: true })
             .then(updatedUser => {
                 res.json(updatedUser);
             })
@@ -37,6 +42,24 @@ const userController = {
             res.json(deletedUser);
         })
         .catch(err => res.json(err))
+    },
+
+    addFriend({ params }, res) {
+        User.findOneAndUpdate(
+            { _id: params.userId }, 
+            {$addToSet: {friends: params.friendId}}, 
+            {new: true})
+        .then(newFriend => res.json(newFriend))
+        .catch(err => console.log(err))
+    },
+
+    removeFriend({ params }, res) {
+        User.findOneAndUpdate(
+            { _id: params.userId},
+            {$pull: {friends: params.friendId}},
+            {new: true})
+            .then(byeFriend => res.json(byeFriend))
+            .catch(err => res.json(err))
     }
 }
 
