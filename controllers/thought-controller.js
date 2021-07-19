@@ -68,7 +68,7 @@ const thoughtController = {
             .then(result => {
                 console.log(result)
                 res.json(result);
-            })
+            }) 
             .catch(err => res.json(err))
     }
 }
